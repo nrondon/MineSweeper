@@ -1,0 +1,392 @@
+//
+//  main.cpp
+//  Final_Project_NR
+//
+//  Created by Naylene Rondon on 4/16/18.
+//  Copyright © 2018 Naylene Rondon. All rights reserved.
+//
+#include <stdlib.h>
+#include <iostream>
+#include <fstream>
+#include <vector>
+using namespace std;
+//Game
+class Minesweeper
+{
+    //Variables
+    char difficulty;
+    char RealBoard[20][20];
+    char DisplayBoard[20][20];
+    int numrow;
+    int numcolumn;
+    int counter;
+    int bombs;
+    public:
+    Minesweeper();
+    //Board Display
+    void boardView();
+    //Functional Board
+    void boardSet(char difficulty);
+    //Output Board
+    void boardOut(char Board[20][20]);
+    //Response
+    void userChoice();
+    //Success
+    bool success();
+    //Number?
+    void game();
+    //Fail
+};
+
+class person
+{
+    string name;
+    int highscore;
+    char difficulty;
+public:
+    person();
+    void setName();
+    string getName();
+    //Assign name to score for
+    void setScore(int score);//Input
+    int getScore();
+    //Succesful choices
+    void setDifficulty();
+    
+    //Output
+    char getDifficulty();
+};
+
+//Player
+class scores
+{
+public:
+    person storePerson;
+    scores(person);
+    //Read File
+    //Organize File Data to highest score to lowest
+    //ArrayList
+    //Difficulty
+    //Highscores
+    //Output to File
+};
+
+int main()
+{
+    //Test
+    bool again = true;
+    cout<<"This is a primitive text version of minesweeper."<<endl;
+    while(again == true){
+        char yn;
+        //Game
+        Minesweeper game = *new Minesweeper();
+        game.game();
+        //Repeat
+        cout<<"Do you want to play again?(y/n)\n";
+        cin>> yn;
+        if (yn == 'y')
+        {
+            again = true;
+        }
+        else if(yn=='n')
+        {
+            again = false;
+        }
+        else
+        {
+            cout<<"Do you want to play again?(y/n)\n";
+            cin>> yn;
+            if (yn == 'y')
+            {
+                again = true;
+            }
+            else if(yn=='n')
+            {
+                again = false;
+            }
+        }
+    }
+    
+    return 0;
+}
+Minesweeper::Minesweeper()
+{
+    difficulty = 'e';
+    boardView();
+    boardSet(difficulty);
+    counter = 0;
+};
+void Minesweeper::boardView()//init at each new game
+{
+    for(int i = 0; i <20; i++)
+    {
+        for(int j = 0; j <20; j++)
+        {
+            DisplayBoard[i][j] = ' ';
+        }
+    }
+};
+void Minesweeper::boardSet(char difficulty)//init at each new game
+{
+    bombs = 0;
+    //Bombs Setup
+    if(difficulty == 'e')
+    {
+        bombs = 15;
+    }
+    else if(difficulty == 'h')
+    {
+        bombs = 20;
+    }
+    else if(difficulty == 'x')
+    {
+        bombs = 25;
+    }
+    for(int i = 0; i <20; i++)
+    {
+        for(int j = 0; j <20; j++)
+        {
+            RealBoard[i][j] = '0';
+        }
+    }
+    
+    //Bombs placement
+    for (int place = 0; place < bombs; place++)
+    {
+        int zone1 = rand() % 20;
+        int zone2 = rand() % 20;
+        RealBoard[zone1][zone2] = '*';
+    }
+    
+    //Init
+    for(int i = 0; i <20; i++)
+    {
+        for(int j = 0; j <20; j++)
+        {
+            //Inspect neighboring values for bombs
+            int count = 0;
+            if(RealBoard[i-1][j] == '*')
+            {
+                count +=1;
+            }
+            if(RealBoard[i][j-1] == '*')
+            {
+                count +=1;
+            }
+            if(RealBoard[i-1][j-1] == '*')
+            {
+                count +=1;
+            }
+            if(RealBoard[i+1][j] == '*')
+            {
+                count +=1;
+            }
+            if(RealBoard[i][j+1] == '*')
+            {
+                count +=1;
+            }
+            if(RealBoard[i+1][j+1] == '*')
+            {
+                count +=1;
+            }
+            if(RealBoard[i+1][j-1] == '*')
+            {
+                count +=1;
+            }
+            if(RealBoard[i-1][j+1] == '*')
+            {
+                count +=1;
+            }
+            if(count > 0)
+            {
+                count = char(count)+48;
+                RealBoard[i][j] = count;
+            }
+        }
+    }
+
+};
+void Minesweeper::boardOut(char Board[20][20])//init at each new game
+{
+    char letter = 65;
+    for(int i = 0; i <20; i++)
+    {
+        if(i==0)
+        {
+            cout<<" ";
+        }
+        cout<<" "<<letter;
+        letter ++;
+    }
+    cout<<endl;
+    letter = 65;
+    for(int i = 0; i <20; i++)
+    {
+        cout<<letter;
+        for(int j = 0; j <20; j++)
+        {
+            if(j==0)
+            {
+                cout<<"|";
+            }
+            cout<<""<<Board[i][j]<<"|";
+        }
+        cout<<endl;
+        cout<<"-----------------------------------------"<<endl;
+        letter++;
+    }
+};
+void Minesweeper::userChoice()
+{
+    numrow = 0;
+    numcolumn = 0;
+    try
+    {
+        char column;
+        char row;
+        cout<<"\nPlease type in your Column choice: ";
+        cin>>column;
+        cout<<"\nPlease type in your Row choice: ";
+        cin>>row;
+        
+        numrow = toupper((int)row) - 65;
+        numcolumn = toupper(int(column))-65;
+        
+        
+    }
+    catch(exception e)
+    {
+        cout<<"Whoops Try again."<<endl;
+        userChoice();
+    }
+    counter+=1;
+}
+bool Minesweeper::success()
+{
+    if (RealBoard[numrow][numcolumn] == '*')
+    {
+        boardOut(RealBoard);
+        cout<<"Sorry, that was a bomb!"<<endl;
+        cout<<"Score: "<<counter<<endl;
+        return false;
+    }
+    else
+    {
+        DisplayBoard[numrow][numcolumn] = RealBoard[numrow][numcolumn];
+        boardOut(DisplayBoard);
+        
+        int count = 0;
+        for(int i = 0; i < 20; i++)
+        {
+            for(int j = 0; j < 20; j++)
+            {
+                if( RealBoard[i][j] == DisplayBoard[i][j])
+                    count+=1;
+            }
+        }
+        if (count == (400-bombs))
+        {
+            cout<<"Congrats! You won!"<<endl;
+            cout<<"Your score is : "<< counter<<endl;
+            return false;
+        }
+        return true;
+    }
+}
+void Minesweeper::game()
+{
+    bool again = true;
+    person newGame;
+    newGame.setName();
+    newGame.setDifficulty();
+    char hard = newGame.getDifficulty();
+    boardOut(DisplayBoard);
+    boardView();
+    boardSet(hard);
+    while (again == true)
+    {
+        userChoice();
+        again = success();
+        
+        //boardOut(DisplayBoard);
+        //boardOut(RealBoard);
+    }
+    newGame.setScore(counter);
+    scores highscore (newGame);
+    
+}
+
+person::person()
+{
+    //setName();
+    //setDifficulty();
+}
+
+void person::setName()
+{
+    cout<<"What's your name? ";
+    cin>> name;
+};
+string person::getName()
+{
+    return name;
+};
+void person::setScore(int score)
+{
+    highscore = score;
+};
+int person::getScore()
+{
+    return highscore;
+};
+void person::setDifficulty()
+{
+    try{
+        cout<<"Easy = e" <<endl<< "Normal = h"<<endl<< "Hard = x "<<endl<<"Choose:";
+        cin>> difficulty;
+    }
+    catch(exception e)
+    {
+        cout<<"Whoops. Try Again"<<endl;
+        setDifficulty();
+    }
+};
+char person::getDifficulty()
+{
+    return difficulty;
+};
+scores::scores(person newPerson)
+{
+    string line;
+    //vector<string> storing;
+    ofstream file;
+    try{
+        ifstream readfile ("scores.txt");
+        if (readfile.is_open())
+        {
+            file.open("scores.txt", std::ios_base::app);
+            //cout<<"File created successfully.";
+            //file<<"Test";
+            while(getline(readfile,line))
+            {
+                file << line <<"\n";
+                //storing.push_back (line);
+                cout<<line<<"\n";
+            }
+            readfile.close();
+            file<< newPerson.getName()<<","<< newPerson.getScore()<<"\n";
+            cout<< newPerson.getName()<<","<< newPerson.getScore()<<"\n";
+            file.close();
+        }
+        //
+       /** for (int i = 0; i < storing.size(); i++)
+        {
+            cout<<storing.at(i);
+        }**/
+    }
+    catch(exception e)
+    {
+        cout<< &e;
+    }
+};
+
